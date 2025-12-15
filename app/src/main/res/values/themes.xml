@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="android:windowSplashScreenBackground">@color/lignt_blue</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/group_124</item>
+        <item name="postSplashScreenTheme">@style/Theme.PracticaTomin</item>
+        <item name="android:windowSplashScreenAnimationDuration">1000</item>
+    </style>
 
     <style name="Theme.PracticaTomin" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>
