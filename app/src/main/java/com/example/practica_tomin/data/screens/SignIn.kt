@@ -2,6 +2,7 @@ package com.example.practice_mobile.ui.screen
 
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,7 +46,7 @@ private val emailRegex = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
 
 // СОЗДАНИЕ ЭКРАНА АВТОРИЗАЦИИ, Щедрин Артем, 15.12.2025
 @Composable
-fun SignInScreen() {
+fun SignIn() {
     var email by remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val passwordVisible = remember { mutableStateOf(false) }
@@ -74,7 +75,6 @@ fun SignInScreen() {
             Text(
                 text = "Привет!",
                 style = MaterialTheme.typography.headlineMedium,
-                fontSize = 32.sp
 
                 )
             Text(
@@ -86,7 +86,14 @@ fun SignInScreen() {
             Spacer(Modifier.height(32.dp))
 
             // Email
-            Text(text = "Email", style = MaterialTheme.typography.bodyMedium)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(text = "Email", style = MaterialTheme.typography.bodyMedium)
+            }
+
             OutlinedTextField(
                 value = email,
                 onValueChange = {
@@ -110,7 +117,15 @@ fun SignInScreen() {
             Spacer(Modifier.height(16.dp))
 
             // Пароль
-            Text(text = "Пароль", style = MaterialTheme.typography.bodyMedium)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 10.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(text = "Пароль", style = MaterialTheme.typography.bodyMedium)
+            }
+
             OutlinedTextField(
                 value = password.value,
                 onValueChange = { password.value = it },
@@ -130,7 +145,7 @@ fun SignInScreen() {
                         Icon(
                             painter = painterResource(
                                 id = if (passwordVisible.value)
-                                    R.drawable.eye_open     // иконка «глаз закрыт»
+                                    R.drawable.eye_open
                                 else
                                     R.drawable.union
                             ),
@@ -145,6 +160,19 @@ fun SignInScreen() {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
 
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Text(
+                    fontSize = 12.sp,
+                    text = "Восстановить",
+                    color = Color(0xFF707B81),
+                    modifier = Modifier.clickable { /* TODO: навигация к логину */ }
+                )
+            }
 
             Spacer(Modifier.height(24.dp))
 
@@ -187,7 +215,8 @@ fun SignInScreen() {
 @Composable
 fun SignInScreenPreview() {
     PracticaTominTheme{
-        SignInScreen()
+        SignIn()
     }
 }
+
 

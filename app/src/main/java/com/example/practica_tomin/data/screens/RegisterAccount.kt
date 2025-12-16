@@ -31,6 +31,7 @@ import com.example.practica_tomin.R
 fun RegisterAccount(
     onBackClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
+    onRegisterSuccess: () -> Unit = {},  // ← Новый параметр
     onRegisterClick: (String, String, String) -> Unit = { _, _, _ -> }
 ) {
     val name = remember { mutableStateOf("") }
@@ -219,12 +220,14 @@ fun RegisterAccount(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF48B2E7),
                     contentColor = Color.White,
-
                     disabledContainerColor = Color(0xFF2B6B8B),
                     disabledContentColor = Color.White
                 ),
-                onClick = { /* TODO: регистрация */ },
-                enabled = agreementChecked.value,
+                onClick = {
+                    onRegisterClick(name.value, email.value, password.value)  // Ваша логика регистрации
+                    onRegisterSuccess()  // ← Переход на Sign In
+                },
+                enabled = isFormValid,  // Верните полную проверку
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
