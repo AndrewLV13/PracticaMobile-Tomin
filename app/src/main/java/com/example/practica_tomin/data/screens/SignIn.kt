@@ -65,7 +65,8 @@ fun SignInScreen(
     viewModel: SignInViewModel,
     onBackClick: () -> Unit = {},
     onRegisterClick: () -> Unit = {},
-    onSignInClick: () -> Unit = {} //
+    onSignInClick: () -> Unit = {},
+    onForgotPasswordClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -219,21 +220,22 @@ fun SignInScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                 )
             }
-            // Ссылка "Восстановить"
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 24.dp),
+                    .padding(top = 12.dp),
                 horizontalArrangement = Arrangement.End
             ) {
                 Text(
                     text = "Восстановить",
-                    fontSize = 14.sp,
                     color = Color(0xFF48B2E7),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         textDecoration = TextDecoration.Underline
                     ),
-                    modifier = Modifier.clickable {  }
+                    fontSize = 14.sp,
+                    modifier = Modifier.clickable {
+                        onForgotPasswordClick()
+                    }
                 )
             }
 
@@ -246,7 +248,7 @@ fun SignInScreen(
                     disabledContainerColor = Color(0xFF2B6B8B),
                     disabledContentColor = Color.White
                 ),
-                enabled = email.isNotBlank() && !emailError && password.isNotBlank(),
+                enabled = email.isNotBlank()  && password.isNotBlank(),
                 onClick = {
                     viewModel.email = email
                     viewModel.password = password
@@ -257,7 +259,7 @@ fun SignInScreen(
                         },
                         onError = { error ->
                             errorMessage = error
-                            //showDialogAlert = true
+                            showDialogAlert = true
                         }
                     )
                 },
@@ -309,10 +311,14 @@ fun SignInScreen(
     }
 }
 
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun SignInScreenPreview() {
-
+//    SignInScreen(
+//        viewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+//        onBackClick = {},
+//        onRegisterClick = {},
+//        onSignInClick = {}
+//    )
 }
 

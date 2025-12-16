@@ -48,6 +48,17 @@ fun NavigationApp(navController: NavHostController,
                 }
             )
         }
+        composable("sign_in") {
+            SignInScreen(
+                viewModel = signInViewModel,
+                onBackClick = { navController.popBackStack() },
+                onRegisterClick = { navController.navigate("sign_up") },
+                onSignInClick = { navController.navigate("home") },
+                onForgotPasswordClick = { navController.navigate("forgot_password") }
+            )
+        }
+
+
         composable("ForgotPassword") {
             ForgotPassword()
         }
