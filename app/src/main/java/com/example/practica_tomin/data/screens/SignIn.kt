@@ -44,7 +44,7 @@ import com.example.practica_tomin.ui.theme.PracticaTominTheme
 
 private val emailRegex = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
 
-// СОЗДАНИЕ ЭКРАНА АВТОРИЗАЦИИ, Щедрин Артем, 15.12.2025
+// СОЗДАНИЕ ЭКРАНА АВТОРИЗАЦИИ, Томин Андрей, 15.12.2025
 @Composable
 fun SignIn() {
     var email by remember { mutableStateOf("") }
