@@ -4,81 +4,44 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.example.practica_tomin.ui.theme.PracticaTominTheme
-import com.example.practice_mobile.ui.screen.RegisterAccount
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.NavHostController
-import com.example.practice_mobile.ui.screen.SignIn
+import com.example.compose_supabase.data.model.StudentApplication
+import com.example.practica_tomin.data.viewModel.SignInViewModel
+import com.example.practica_tomin.data.viewModel.SignUpViewModel
+import com.example.up_piatnitskii.data.navigation.NavigationApp
 
 class MainActivity : ComponentActivity() {
+    val signUpViewModel by viewModels<SignUpViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        val signUpViewModel = SignUpViewModel(StudentApplication.database.userDao())
+        val signInViewModel = SignInViewModel(StudentApplication.database.userDao())
+
         enableEdgeToEdge()
+
         setContent {
             PracticaTominTheme {
-                AppNavigation()
 
+                Surface (
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ){
+                    val navController = rememberNavController()
+                    val context = LocalContext.current
+                    NavigationApp(navController = navController, signUpViewModel = signUpViewModel, signInViewModel = signInViewModel, context = context)
+                }
             }
         }
-    }
-}
-
-@Composable
-fun AppNavigation() {
-    val navController = rememberNavController()
-
-    NavHost(
-        navController = navController,
-        startDestination = "register"
-    ) {
-        composable("register") {
-            RegisterAccount(
-                onBackClick = { /* логика назад */ },
-                onLoginClick = {
-                    navController.navigate("login")
-                },
-                onRegisterSuccess = {
-                    navController.navigate("login") {
-                        popUpTo("register") { inclusive = true }  // Удаляем register
-                    }
-                },
-                onRegisterClick = { name, email, password ->
-                    // TODO: Ваша логика регистрации API
-                    println("Регистрация: $name, $email, $password")
-                }
-            )
-        }
-
-        composable("login") {
-            SignIn(
-
-            )
-        }
-    }
-}
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PracticaTominTheme {
-        Greeting("Android")
     }
 }

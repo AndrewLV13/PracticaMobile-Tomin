@@ -1,51 +1,81 @@
-package com.example.practice_mobile.ui.screen
+package com.example.up_piatnitskii.data.screens
 
+
+
+import androidx.compose.material3.Surface
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.practica_tomin.data.viewModel.SignInViewModel
+import com.example.practica_tomin.ui.theme.BackgroundColor
+import com.example.practica_tomin.ui.theme.HintColor
+import com.example.practica_tomin.ui.theme.RalewayTypography
+import com.example.practica_tomin.ui.theme.SubTextDarkColor
+import com.example.practica_tomin.ui.theme.TextColor
 import com.example.practica_tomin.R
-import com.example.practica_tomin.ui.theme.PracticaTominTheme
+
 
 private val emailRegex = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
 
+
 @Composable
 fun SignInScreen(
-    viewModel: SignInViewModel? = null,
-    onSignInSuccess: () -> Unit = {},
-    onSignUpClick: () -> Unit = {},
-    onForgotPasswordClick: () -> Unit = {}
+    viewModel: SignInViewModel,
+    onBackClick: () -> Unit = {},
+    onRegisterClick: () -> Unit = {},
+    onSignInClick: () -> Unit = {} //
 ) {
+    val context = LocalContext.current
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+    val passwordVisible = remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf(false) }
-    var isEmptyError by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
-    var showErrorDialog by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
 
-    // Требование №12: Валидация email в реальном времени
-    LaunchedEffect(email) {
-        emailError = email.isNotBlank() && !emailRegex.matches(email)
-    }
+    var showDialogAlert by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -54,102 +84,141 @@ fun SignInScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 20.dp)
+                .padding(top = 66.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(24.dp))
+            // Круглая кнопка "назад"
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ElevatedButton(
+                    onClick = onBackClick,
+                    shape = CircleShape,
+                    modifier = Modifier.size(40.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowLeft,
+                        contentDescription = "Назад",
+                        tint = Color.Black
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
 
             Text(
                 text = "Привет!",
-                style = MaterialTheme.typography.headlineMedium,
-                fontSize = 32.sp
+                style = RalewayTypography.headingRegular32,
+                color = TextColor,
             )
+            Spacer(Modifier.height(8.dp))
             Text(
-                text = "Заполните свои данные",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
+                text = "Заполните Свои Данные",
+                color = SubTextDarkColor,
+                style = RalewayTypography.bodyRegular16
             )
 
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(54.dp))
 
-            // Email
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 10.dp),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Text(text = "Email", style = MaterialTheme.typography.bodyMedium)
-            }
-
-            OutlinedTextField(
-                value = email,
-                onValueChange = {
-                    email = it
-                    isEmptyError = false
-                },
+            // Колонка с полями, выровненными слева
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("xyz@gmail.com") },
-                isError = emailError || isEmptyError,
-                shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFF3F3F3),
-                    unfocusedContainerColor = Color(0xFFF3F3F3),
-                    errorContainerColor = Color(0xFFFFE6E6)
-                ),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // Пароль
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 10.dp),
-                horizontalArrangement = Arrangement.Start
+                horizontalAlignment = Alignment.Start
             ) {
-                Text(text = "Пароль", style = MaterialTheme.typography.bodyMedium)
-            }
+                // Email
+                Text(
+                    text = "Email",
+                    style = RalewayTypography.bodyMedium16,
+                    color = TextColor,
+                )
 
-            OutlinedTextField(
-                value = password,
-                onValueChange = {
-                    password = it
-                    isEmptyError = false
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFF3F3F3),
-                    unfocusedContainerColor = Color(0xFFF3F3F3)
-                ),
-                visualTransformation = if (passwordVisible)
-                    VisualTransformation.None
-                else PasswordVisualTransformation(),
-                // Требование №14: Возможность отображения пароля
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(
-                            painter = painterResource(
-                                id = if (passwordVisible)
-                                    R.drawable.eye_open
-                                else
-                                    R.drawable.union
-                            ),
-                            contentDescription = if (passwordVisible)
-                                "Скрыть пароль"
-                            else
-                                "Показать пароль",
-                            tint = Color.Unspecified
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { newEmail ->
+                        email = newEmail
+                        emailError = !emailRegex.matches(newEmail)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    placeholder = {
+                        Text(
+                            "xyz@gmail.com",
+                            color = HintColor,
+                            style = RalewayTypography.bodyRegular14
                         )
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true
-            )
+                    },
+                    isError = emailError,
+                    shape = RoundedCornerShape(14.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        disabledBorderColor = Color.Transparent,
+                        focusedContainerColor = BackgroundColor,
+                        unfocusedContainerColor = BackgroundColor,
+                        disabledContainerColor = BackgroundColor
+                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                )
 
+                Spacer(Modifier.height(30.dp))
+
+                // Пароль
+                Text(
+                    text = "Пароль",
+                    style = RalewayTypography.bodyMedium16,
+                    color = TextColor,
+                    textAlign = TextAlign.Start
+                )
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    placeholder = {
+                        Text(
+                            "*********",
+                            color = HintColor,
+                            style = RalewayTypography.bodyRegular14
+                        )
+                    },
+                    shape = RoundedCornerShape(14.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        disabledBorderColor = Color.Transparent,
+                        focusedContainerColor = BackgroundColor,
+                        unfocusedContainerColor = BackgroundColor,
+                        disabledContainerColor = BackgroundColor
+                    ),
+                    visualTransformation = if (passwordVisible.value)
+                        VisualTransformation.None
+                    else
+                        PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (passwordVisible.value)
+                                        R.drawable.eye_open
+                                    else
+                                        R.drawable.union
+                                ),
+                                contentDescription = if (passwordVisible.value)
+                                    "Скрыть пароль"
+                                else
+                                    "Показать пароль",
+                                tint = Color.Unspecified
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                )
+            }
             // Ссылка "Восстановить"
             Row(
                 modifier = Modifier
@@ -164,98 +233,86 @@ fun SignInScreen(
                     style = MaterialTheme.typography.bodyMedium.copy(
                         textDecoration = TextDecoration.Underline
                     ),
-                    modifier = Modifier.clickable { onForgotPasswordClick() } // Требование №16
+                    modifier = Modifier.clickable {  }
                 )
             }
 
-            // Кнопка входа
+            Spacer(Modifier.height(24.dp))
+
             Button(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF48B2E7),
                     contentColor = Color.White,
-                    disabledContainerColor = Color(0xFF2B6B8B)
+                    disabledContainerColor = Color(0xFF2B6B8B),
+                    disabledContentColor = Color.White
                 ),
+                enabled = email.isNotBlank() && !emailError && password.isNotBlank(),
                 onClick = {
-                    // Требования №13: Проверка пустоты полей
-                    if (email.isBlank() || password.isBlank()) {
-                        isEmptyError = true
-                        errorMessage = "Заполните все поля"
-                        showErrorDialog = true
-                        return@Button
-                    }
+                    viewModel.email = email
+                    viewModel.password = password
 
-                    // Требование №12: Проверка email
-                    if (emailError) {
-                        errorMessage = "Некорректный формат email"
-                        showErrorDialog = true
-                        return@Button
-                    }
-
-                    // TODO: Требование №8: Отправка запроса на сервер
-                    isLoading = true
-                    // viewModel?.signIn(email, password) { success, error ->
-                    //     isLoading = false
-                    //     if (success) onSignInSuccess()
-                    //     else {
-                    //         errorMessage = error ?: "Ошибка сервера"
-                    //         showErrorDialog = true
-                    //     }
-                    // }
+                    viewModel.signIn(
+                        onSuccess = {
+                            onSignInClick()
+                        },
+                        onError = { error ->
+                            errorMessage = error
+                            //showDialogAlert = true
+                        }
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                enabled = !isLoading && email.isNotBlank() && password.isNotBlank() && !emailError,
                 shape = RoundedCornerShape(12.dp)
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        color = Color.White,
-                        strokeWidth = 2.dp,
-                        modifier = Modifier.size(20.dp)
-                    )
-                } else {
-                    Text("Войти")
-                }
+                Text(
+                    "Войти",
+                    color = BackgroundColor,
+                    style = RalewayTypography.bodyRegular14
+                )
             }
 
             Spacer(Modifier.weight(1f))
 
-            // Ссылка "Создать пользователя"
             Row(
-                modifier = Modifier.padding(bottom = 24.dp),
+                modifier = Modifier.padding(bottom = 48.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Вы здесь впервые? ")
+                Text(
+                    text = "Вы впервые? ",
+                    color = HintColor,
+                    style = RalewayTypography.bodyRegular16,
+                )
                 Text(
                     text = "Создать",
-                    color = Color(0xFF000000),
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.clickable { onSignUpClick() } // Требование №17
+                    color = TextColor,
+                    style = RalewayTypography.bodyRegular16,
+                    modifier = Modifier.clickable { onRegisterClick() }
                 )
             }
         }
-    }
 
-    // Требования №9, №31: Диалог ошибок
-    if (showErrorDialog) {
-        AlertDialog(
-            onDismissRequest = { showErrorDialog = false },
-            title = { Text("Ошибка") },
-            text = { Text(errorMessage) },
-            confirmButton = {
-                TextButton(onClick = { showErrorDialog = false }) {
-                    Text("OK")
-                }
-            }
-        )
+        // Диалог ошибки
+        if (showDialogAlert) {
+            AlertDialog(
+                onDismissRequest = { showDialogAlert = false },
+                confirmButton = {
+                    Button(onClick = { showDialogAlert = false }) {
+                        Text("OK")
+                    }
+                },
+                title = { Text("Ошибка") },
+                text = { Text(errorMessage) }
+            )
+        }
     }
 }
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun SignInScreenPreview() {
-    PracticaTominTheme {
-        SignInScreen()
-    }
+
 }
+
