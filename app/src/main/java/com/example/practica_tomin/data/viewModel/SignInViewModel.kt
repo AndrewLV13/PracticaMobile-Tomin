@@ -36,7 +36,6 @@ class SignInViewModel(private val userDAO: UserDAO): ViewModel() {
                     500 -> "Ошибка сервера"
                     else -> "Ошибка входа: ${response.message()}"
                 }
-
                 val errorBody = response.errorBody()?.string()
                 Log.e("SignIn", "Тело ошибки: $errorBody")
                 onError(errorMessage)
