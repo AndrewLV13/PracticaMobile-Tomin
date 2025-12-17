@@ -1,6 +1,6 @@
 package com.example.practice_mobile.ui.screen
 
-import SignUpViewModel
+
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.practica_tomin.R
+import com.example.practica_tomin.data.viewModel.SignUpViewModel
 
 import com.example.practica_tomin.ui.theme.BackgroundColor
 import com.example.practica_tomin.ui.theme.HintColor
@@ -43,7 +44,7 @@ import com.example.practica_tomin.ui.theme.TextColor
 
 // Регулярка для email: name@domain.ru (только маленькие латинские буквы и цифры,
 // TLD минимум 3 символа)
-private val EMAIL_REGEX = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
+private val EMAIL_REGEX = Regex("^[a-z0-9]+@[a-z0-9]+\\\\.[a-z]{3,}\$")
 
 // Регистрация
 @Composable

@@ -1,7 +1,6 @@
 package com.example.up_piatnitskii.data.navigation
 
 
-import SignUpViewModel
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -18,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.practica_tomin.data.screens.HomeScreen
 import com.example.practica_tomin.data.screens.OnboardScreen
+import com.example.practica_tomin.data.viewModel.SignUpViewModel
 import com.example.practice_mobile.ui.screen.ForgotPassword
 import com.example.practice_mobile.ui.screen.RegisterAccount
 import com.example.practice_mobile.ui.screen.Verification
