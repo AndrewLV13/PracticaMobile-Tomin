@@ -16,8 +16,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.practica_tomin.data.screens.HomeScreen
 import com.example.practica_tomin.data.screens.OnboardScreen
-
 import com.example.practice_mobile.ui.screen.ForgotPassword
 import com.example.practice_mobile.ui.screen.RegisterAccount
 import com.example.practice_mobile.ui.screen.Verification
@@ -76,8 +76,13 @@ fun NavigationApp(navController: NavHostController,
 
         composable("ForgotPassword") {
             ForgotPassword(
-                onOTPClick = {navController.navigate("Verivication")}
+                onOTPClick = {navController.navigate("Verivication")},
+                onBackClick = { navController.navigate("sign_in")  }
             )
+
+        }
+        composable("home") {
+            HomeScreen({},{},{})
         }
 
     }

@@ -5,6 +5,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,12 +13,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.practica_tomin.R
 import com.example.practica_tomin.ui.theme.PracticaTominTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,7 +89,7 @@ class ForgotPasswordViewModel : ViewModel() {
         if (_isEmailValid.value) {
             _passwordRecoveryState.update { PasswordRecoveryState.Loading }
 
-            // ✅ ИСПРАВЛЕНО: используем update() вместо прямого присваивания
+
             kotlinx.coroutines.MainScope().launch {
                 kotlinx.coroutines.delay(2000)
                 _passwordRecoveryState.update { PasswordRecoveryState.Success("Код отправлен!") }
@@ -170,19 +176,23 @@ fun ForgotPassword(
                 .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Кнопка назад
+            // Круглая кнопка "назад"
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp, bottom = 16.dp)
-                    .clickable { onBackClick() },
-                horizontalArrangement = Arrangement.Start
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "← Назад",
-                    fontSize = 16.sp,
-                    color = Color.Black
-                )
+                ElevatedButton(
+                    onClick = onBackClick,
+                    shape = CircleShape,
+                    modifier = Modifier.size(width = 44.dp, height = 44.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowLeft,
+                        contentDescription = "Назад",
+                        tint = Color.Black
+                    )
+                }
             }
 
             // Заголовок

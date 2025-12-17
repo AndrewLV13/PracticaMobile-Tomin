@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -99,11 +101,11 @@ fun SignInScreen(
                 ElevatedButton(
                     onClick = onBackClick,
                     shape = CircleShape,
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(width = 44.dp, height = 44.dp),
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.icon),
+                        imageVector = Icons.Filled.KeyboardArrowLeft,
                         contentDescription = "Назад",
                         tint = Color.Black
                     )
