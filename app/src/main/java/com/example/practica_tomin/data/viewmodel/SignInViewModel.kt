@@ -1,16 +1,24 @@
-package com.example.practica_tomin.data.viewModel
+package com.example.up_piatnitskii.data.viewModel
 
+import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-
 import com.example.compose_supabase.data.model.SignInRequest
 import com.example.compose_supabase.data.model.UserDAO
 import com.example.practica_tomin.data.RetrofitInstance
-import kotlinx.coroutines.launch
-import kotlin.let
 
-class SignInViewModel(private val userDAO: UserDAO): ViewModel() {
+import kotlinx.coroutines.launch
+
+class SignInViewModel (private val userDAO: UserDAO): ViewModel() {
     var email: String = ""
     var password: String = ""
 
@@ -36,6 +44,7 @@ class SignInViewModel(private val userDAO: UserDAO): ViewModel() {
                     500 -> "Ошибка сервера"
                     else -> "Ошибка входа: ${response.message()}"
                 }
+
                 val errorBody = response.errorBody()?.string()
                 Log.e("SignIn", "Тело ошибки: $errorBody")
                 onError(errorMessage)

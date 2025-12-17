@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -48,13 +49,16 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.practica_tomin.data.viewModel.SignInViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+
 import com.example.practica_tomin.ui.theme.BackgroundColor
 import com.example.practica_tomin.ui.theme.HintColor
 import com.example.practica_tomin.ui.theme.RalewayTypography
 import com.example.practica_tomin.ui.theme.SubTextDarkColor
 import com.example.practica_tomin.ui.theme.TextColor
 import com.example.practica_tomin.R
+import com.example.up_piatnitskii.data.viewModel.SignInViewModel
 
 
 private val emailRegex = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
@@ -97,7 +101,7 @@ fun SignInScreen(
                 ElevatedButton(
                     onClick = onBackClick,
                     shape = CircleShape,
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(width = 44.dp, height = 44.dp),
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Icon(
@@ -314,11 +318,6 @@ fun SignInScreen(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun SignInScreenPreview() {
-//    SignInScreen(
-//        viewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-//        onBackClick = {},
-//        onRegisterClick = {},
-//        onSignInClick = {}
-//    )
+
 }
 

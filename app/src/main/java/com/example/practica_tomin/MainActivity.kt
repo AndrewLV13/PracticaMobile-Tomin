@@ -1,5 +1,6 @@
 package com.example.practica_tomin
 
+import SignUpViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,9 +16,10 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.example.practica_tomin.ui.theme.PracticaTominTheme
 import com.example.compose_supabase.data.model.StudentApplication
-import com.example.practica_tomin.data.viewModel.SignInViewModel
-import com.example.practica_tomin.data.viewModel.SignUpViewModel
+
 import com.example.up_piatnitskii.data.navigation.NavigationApp
+import com.example.up_piatnitskii.data.viewModel.SignInViewModel
+import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
     val signUpViewModel by viewModels<SignUpViewModel>()
