@@ -1,5 +1,6 @@
 package com.example.practice_mobile.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.material3.Surface
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,18 +14,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,101 +45,246 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.practica_tomin.ui.theme.PracticaTominTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 
-private val emailRegex = Regex("^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$")
+// ViewModel как в первом примере
+class ForgotPasswordViewModel : ViewModel() {
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email.asStateFlow()
 
-// СОЗДАНИЕ ЭКРАНА ЗАБЫЛ ПАРОЛЬ, Томин Андрей, 15.12.2025
+    private val _isEmailValid = MutableStateFlow(false)
+    val isEmailValid: StateFlow<Boolean> = _isEmailValid.asStateFlow()
+
+    private val _passwordRecoveryState = MutableStateFlow<PasswordRecoveryState>(PasswordRecoveryState.Idle)
+    val passwordRecoveryState: StateFlow<PasswordRecoveryState> = _passwordRecoveryState.asStateFlow()
+
+    private val emailRegex = Regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+
+    fun updateEmail(newEmail: String) {
+        _email.value = newEmail
+        _isEmailValid.value = newEmail.isNotEmpty() && emailRegex.matches(newEmail)
+    }
+
+    fun recoverPassword() {
+        if (_isEmailValid.value) {
+            _passwordRecoveryState.update { PasswordRecoveryState.Loading }
+
+            // ✅ ИСПРАВЛЕНО: используем update() вместо прямого присваивания
+            kotlinx.coroutines.MainScope().launch {
+                kotlinx.coroutines.delay(2000)
+                _passwordRecoveryState.update { PasswordRecoveryState.Success("Код отправлен!") }
+            }
+        }
+    }
+}
+
+// Состояния как в первом примере
+sealed class PasswordRecoveryState {
+    object Idle : PasswordRecoveryState()
+    object Loading : PasswordRecoveryState()
+    data class Success(val message: String = "Код отправлен!") : PasswordRecoveryState()
+    data class Error(val message: String) : PasswordRecoveryState()
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForgotPassword() {
-    var email by remember { mutableStateOf("") }
-    var emailError by remember { mutableStateOf(false) }
+fun ForgotPassword(
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit = {},
+    onOTPClick: (email: String) -> Unit = {},
+    viewModel: ForgotPasswordViewModel = viewModel()
+) {
+    val uiState by viewModel.passwordRecoveryState.collectAsState()
+    val email by viewModel.email.collectAsState()
+    val isEmailValid by viewModel.isEmailValid.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.White) {
+    // Состояние для отображения AlertDialog
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
+    // Обработка состояний как в первом примере
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is PasswordRecoveryState.Success -> {
+                showSuccessDialog = true
+            }
+            is PasswordRecoveryState.Error -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        (uiState as PasswordRecoveryState.Error).message,
+                        withDismissAction = true
+                    )
+                }
+            }
+            else -> {}
+        }
+    }
+
+    // Диалог успеха как в первом примере
+    if (showSuccessDialog && email.isNotEmpty()) {
+        AlertDialog(
+            onDismissRequest = { showSuccessDialog = false },
+            title = { Text("Код отправлен!") },
+            text = { Text("Проверьте вашу почту. Мы отправили вам код для сброса пароля.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showSuccessDialog = false
+                        onOTPClick(email)
+                    }
+                ) {
+                    Text("Продолжить")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSuccessDialog = false }) {
+                    Text("Отмена")
+                }
+            }
+        )
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(paddingValues)
+                .padding(horizontal = 24.dp)
+                .background(Color.White),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(Modifier.height(24.dp))
-
+            // Кнопка назад
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, bottom = 16.dp)
+                    .clickable { onBackClick() },
+                horizontalArrangement = Arrangement.Start
             ) {
-
+                Text(
+                    text = "← Назад",
+                    fontSize = 16.sp,
+                    color = Color.Black
+                )
             }
 
-            Spacer(Modifier.height(16.dp))
-
+            // Заголовок
             Text(
-                text = "Забыл Пароль",
-                style = MaterialTheme.typography.headlineMedium,
-
-                )
-            Text(
-                text = "Введите Свою Учетную Запись\n                   Для Сброса",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
+                text = "Забыл пароль",
+                fontSize = 32.sp,
+                fontWeight = MaterialTheme.typography.headlineMedium.fontWeight,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            Spacer(Modifier.height(32.dp))
+            Text(
+                text = "Введите свою учетную запись\nдля сброса пароля",
+                fontSize = 16.sp,
+                color = Color.Gray,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 54.dp)
+            )
 
-            // Email
+            // Поле email
             OutlinedTextField(
                 value = email,
-                onValueChange = {
-                    email = it
-                    emailError = !emailRegex.matches(it)
+                onValueChange = { viewModel.updateEmail(it) },
+                placeholder = {
+                    Text(
+                        "xyz@gmail.com",
+                        color = Color(0xFF999999)
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp),
-                placeholder = { Text("xyz@gmail.com") },
-                isError = emailError,
+                    .padding(bottom = 20.dp),
                 shape = RoundedCornerShape(16.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = if (email.isNotEmpty() && !isEmailValid)
+                        Color.Red
+                    else
+                        Color(0xFFE0E0E0),
+                    focusedBorderColor = if (isEmailValid)
+                        Color(0xFF48B2E7)
+                    else
+                        Color.Red,
+                    cursorColor = Color(0xFF48B2E7),
                     focusedContainerColor = Color(0xFFF3F3F3),
-                    unfocusedContainerColor = Color(0xFFF3F3F3),
-                    disabledContainerColor = Color(0xFFF3F3F3)
+                    unfocusedContainerColor = Color(0xFFF3F3F3)
                 ),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                singleLine = true,
+                isError = email.isNotEmpty() && !isEmailValid,
+                supportingText = {
+                    if (email.isNotEmpty() && !isEmailValid) {
+                        Text(
+                            text = "Введите корректный email адрес",
+                            color = Color.Red,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
             )
 
-            Spacer(Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
+            // Кнопка отправки
             Button(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF48B2E7),
-                    contentColor = Color.White,
-
-                    disabledContainerColor = Color(0xFF2B6B8B),
-                    disabledContentColor = Color.White
-                ),
-                onClick = { /* TODO: регистрация */ },
+                onClick = { viewModel.recoverPassword() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .height(56.dp),
+                enabled = isEmailValid && uiState !is PasswordRecoveryState.Loading,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isEmailValid && uiState !is PasswordRecoveryState.Loading)
+                        Color(0xFF48B2E7)
+                    else
+                        Color(0xFF2B6B8B),
+                    contentColor = Color.White
+                ),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Отправить")
+                if (uiState is PasswordRecoveryState.Loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = Color.White
+                    )
+                } else {
+                    Text("Отправить", fontSize = 16.sp)
+                }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun ForgPassScreenPreview() {
+fun ForgotPasswordScreenPreview() {
     PracticaTominTheme {
-        ForgotPassword()
+        ForgotPassword(
+            onBackClick = {},
+            onOTPClick = {}
+        )
     }
 }

@@ -1,5 +1,6 @@
 package com.example.practice_mobile.ui.screen
 
+import SignUpViewModel
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,8 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,12 +33,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.practica_tomin.R
-import com.example.practica_tomin.data.viewModel.SignUpViewModel
+
 import com.example.practica_tomin.ui.theme.BackgroundColor
 import com.example.practica_tomin.ui.theme.HintColor
 import com.example.practica_tomin.ui.theme.RalewayTypography
 import com.example.practica_tomin.ui.theme.SubTextDarkColor
 import com.example.practica_tomin.ui.theme.TextColor
+
 
 // Регулярка для email: name@domain.ru (только маленькие латинские буквы и цифры,
 // TLD минимум 3 символа)
