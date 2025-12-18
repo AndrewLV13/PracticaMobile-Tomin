@@ -448,12 +448,27 @@ private fun PopularSection(
 
 @Composable
 private fun PromotionsSection(onSeeAllClick: () -> Unit) {
-    Column {
-        Text(
-            text = stringResource(id = R.string.sales),
-            style = RalewayTypography.bodyMedium16,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
+    Column(modifier = Modifier.padding(top = 24.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.sales),
+                style = RalewayTypography.bodyMedium16,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            Text(
+                text = "Все",
+                style = RalewayTypography.bodyRegular12,
+                color = AccentColor,
+                modifier = Modifier.clickable {
+                    // Навигация на все популярные товары
+                }
+            )
+        }
+
 
         Card(
             modifier = Modifier
