@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -115,13 +116,13 @@ fun SignInScreen(
             Spacer(Modifier.height(12.dp))
 
             Text(
-                text = "Привет!",
+                text = stringResource(id = R.string.hello),
                 style = RalewayTypography.headingRegular32,
                 color = TextColor,
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = "Заполните Свои Данные",
+                text = stringResource(id = R.string.details),
                 color = SubTextDarkColor,
                 style = RalewayTypography.bodyRegular16
             )
@@ -135,7 +136,7 @@ fun SignInScreen(
             ) {
                 // Email
                 Text(
-                    text = "Email",
+                    text = stringResource(id = R.string.email),
                     style = RalewayTypography.bodyMedium16,
                     color = TextColor,
                 )
@@ -173,7 +174,7 @@ fun SignInScreen(
 
                 // Пароль
                 Text(
-                    text = "Пароль",
+                    text = stringResource(id = R.string.pass),
                     style = RalewayTypography.bodyMedium16,
                     color = TextColor,
                     textAlign = TextAlign.Start
@@ -231,7 +232,7 @@ fun SignInScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 Text(
-                    text = "Восстановить",
+                    text = stringResource(id = R.string.recovery),
                     color = Color(0xFF48B2E7),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         textDecoration = TextDecoration.Underline
@@ -273,7 +274,7 @@ fun SignInScreen(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    "Войти",
+                    stringResource(id = R.string.sign_in),
                     color = BackgroundColor,
                     style = RalewayTypography.bodyRegular14
                 )
@@ -286,12 +287,12 @@ fun SignInScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Вы впервые? ",
+                    text = stringResource(id = R.string.new_user),
                     color = HintColor,
                     style = RalewayTypography.bodyRegular16,
                 )
                 Text(
-                    text = "Создать",
+                    text = stringResource(id = R.string.create),
                     color = TextColor,
                     style = RalewayTypography.bodyRegular16,
                     modifier = Modifier.clickable { onRegisterClick() }

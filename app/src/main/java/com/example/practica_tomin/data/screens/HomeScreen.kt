@@ -1,6 +1,7 @@
 // screens/HomeScreen.kt
 package com.example.practica_tomin.data.screens
 
+import android.R.attr.onClick
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,7 +38,11 @@ import com.example.practica_tomin.data.model.Category
 import com.example.practica_tomin.data.model.Product
 import com.example.practica_tomin.R
 import com.example.practica_tomin.data.components.ProductCard
+import com.example.practica_tomin.ui.theme.AccentColor
+import com.example.practica_tomin.ui.theme.BackgroundColor
 import com.example.practica_tomin.ui.theme.RalewayTypography
+import com.example.practica_tomin.ui.theme.SubTextLightColor
+import com.example.practica_tomin.ui.theme.TextColor
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -192,7 +198,7 @@ fun HomeScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .background(Color.White)
+                .background(BackgroundColor)
         ) {
             // Верхняя панель с заголовком, поиском и настройками (только для главной вкладки)
             if (selected == 0) {
@@ -244,8 +250,8 @@ fun HomeScreen(
                                 },
                                 shape = RoundedCornerShape(12.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color.Gray,
-                                    unfocusedBorderColor = Color.LightGray,
+                                    focusedBorderColor = Color.White,
+                                    unfocusedBorderColor = Color.White,
                                     focusedContainerColor = Color.White,
                                     unfocusedContainerColor = Color.White
                                 )
@@ -259,7 +265,7 @@ fun HomeScreen(
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
+                                .background(AccentColor)
                                 .clickable { onSettingsClick() },
                             contentAlignment = Alignment.Center
                         ) {
@@ -309,7 +315,11 @@ fun HomeScreen(
 
                             // Секция: Акции
                             item {
-                                PromotionsSection()
+                                PromotionsSection(
+                                    onSeeAllClick = {
+                                        // навигация на экран акций
+                                    }
+                                )
                             }
                         }
                     }
@@ -380,14 +390,14 @@ private fun CategoryChip(
     Surface(
         modifier = Modifier
             .clickable { onClick() }
-            .clip(RoundedCornerShape(16.dp)),
-        color = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFFF5F5F5),
-        contentColor = if (isSelected) Color.White else Color.Black
+            .clip(RoundedCornerShape(8.dp)),
+        color = if (isSelected) AccentColor else Color.White,
+        contentColor = if (isSelected) Color.White else TextColor
     ) {
         Text(
             text = category,
             style = RalewayTypography.bodyMedium16.copy(fontWeight = FontWeight.Medium),
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 42.dp, vertical = 8.dp)
         )
     }
 }
@@ -412,7 +422,7 @@ private fun PopularSection(
             Text(
                 text = "Все",
                 style = RalewayTypography.bodyRegular12,
-                color = MaterialTheme.colorScheme.primary,
+                color = AccentColor,
                 modifier = Modifier.clickable {
                     // Навигация на все популярные товары
                 }
@@ -437,7 +447,7 @@ private fun PopularSection(
 }
 
 @Composable
-private fun PromotionsSection() {
+private fun PromotionsSection(onSeeAllClick: () -> Unit) {
     Column {
         Text(
             text = stringResource(id = R.string.sales),
@@ -448,63 +458,25 @@ private fun PromotionsSection() {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp),
-            shape = RoundedCornerShape(16.dp),
+                .height(120.dp)
+                .clickable {  },
+            shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF4CAF50)
-            )
+                containerColor = Color.White
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Левая часть с текстом
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Summer Sale",
-                        style = RalewayTypography.headingRegular32.copy(
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "15% OFF",
-                        style = RalewayTypography.headingRegular32.copy(
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
-                        )
-                    )
-                }
-
-                // Правая часть с кнопкой
-                TextButton(
-                    onClick = {
-                        // Навигация на акции
-                    },
-                    modifier = Modifier
-                        .background(Color.White, RoundedCornerShape(12.dp))
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = "Смотреть",
-                        style = RalewayTypography.bodyMedium16.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4CAF50)
-                        )
-                    )
-                }
-            }
+            Image(
+                painter = painterResource(
+                    R.drawable.frame_1000000849
+                ),
+                contentDescription = "Summer sale",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
         }
     }
+
 }
 
 @Preview(showBackground = true, showSystemUi = true)
