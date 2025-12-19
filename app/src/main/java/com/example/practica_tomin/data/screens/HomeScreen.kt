@@ -32,13 +32,15 @@ import com.example.practica_tomin.R
 import com.example.practica_tomin.data.components.ProductCard
 import com.example.practica_tomin.data.model.Category
 import com.example.practica_tomin.data.model.Product
-import com.example.practica_tomin.data.screens.ProfileScreen
+
 import com.example.practica_tomin.ui.theme.AccentColor
 import com.example.practica_tomin.ui.theme.RalewayTypography
 import com.example.practica_tomin.ui.theme.TextColor
 
 import com.example.shoeshop.ui.viewmodel.HomeViewModel
-
+import com.example.up_piatnitskii.data.screens.ProfileScreen
+import com.example.up_piatnitskii.data.viewModel.ProfileViewModel
+import com.example.up_piatnitskii.data.viewModel.SupabaseClient
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -322,7 +324,8 @@ fun HomeScreen(
                         }
                     }
                     3 -> {
-                        ProfileScreen()
+                        val viewModel: ProfileViewModel=remember { ProfileViewModel(SupabaseClient()) }
+                        ProfileScreen(viewModel = viewModel)
                     }
                 }
             }

@@ -265,7 +265,8 @@ fun SignInScreen(
                         onError = { error ->
                             errorMessage = error
                             showDialogAlert = true
-                        }
+                        },
+                        context = context
                     )
                 },
                 modifier = Modifier
