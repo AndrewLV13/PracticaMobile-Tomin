@@ -1,24 +1,43 @@
 package com.example.practica_tomin.data.screens
 
+import android.Manifest
+import android.net.Uri
+import android.os.Environment
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
+import coil3.compose.rememberAsyncImagePainter
 import com.example.practica_tomin.R
 import com.example.practica_tomin.data.components.DisableButton
+import com.example.practica_tomin.ui.theme.AccentColor
+import com.example.practica_tomin.ui.theme.BackgroundColor
 import com.example.practica_tomin.ui.theme.RalewayTypography
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
 
 import kotlin.text.isNotEmpty
 
@@ -35,6 +54,69 @@ fun ProfileScreen() {
         derivedStateOf {
             name != "Еmmanuel" || lastName != "Oyiboke" || address != "Nigeria" || phone != ""
         }
+    }
+    val context = LocalContext.current
+    var tempFhotoFile by remember { mutableStateOf<File?>(null) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // запускает системное приложение камеры
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { isSuccess ->
+            if (isSuccess) {
+                tempFhotoFile?.let { file ->
+                    selectedImageUri = Uri.fromFile(file)
+                }
+            }
+            else {
+                Toast.makeText(context, "Ошибка при съёмке фото", Toast.LENGTH_SHORT).show()
+                selectedImageUri = null
+            }
+        }
+    )
+    // создает временный файл для фото с timestamp в названии
+    fun createImageFile(): File {
+        val timeStamp = SimpleDateFormat("ddMMyyyy_HHmmss", java.util.Locale.getDefault()).format(Date())
+        val storageDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile("JPEG_${timeStamp}_",".jpg", storageDirectory
+        ).apply {
+            createNewFile()
+        }
+    }
+    // подготавливает URI и запускает камеру
+    fun openCamera() {
+        try {
+            val photoFile = createImageFile()
+            tempFhotoFile = photoFile
+            val photoUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                photoFile
+            )
+            cameraLauncher.launch(photoUri)
+        }
+        catch (e: Exception){
+            Toast.makeText(context, "Ошибка при съёмке фото\n"+e.message.toString(), Toast.LENGTH_SHORT).show()
+        }
+    }
+    // запрашивает разрешение CAMERA
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isSuccess ->
+            if (isSuccess) {
+                openCamera()
+            }
+            else {
+                Toast.makeText(context, "Ошибка", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+    )
+
+    // проверяет/запрашивает доступ к камере
+    fun checkCameraPermissonAndOpen(){
+        val permission = Manifest.permission.CAMERA
+        cameraPermissionLauncher.launch(permission)
     }
 
     Surface(
@@ -99,7 +181,23 @@ fun ProfileScreen() {
                         .size(100.dp)
                         .clip(CircleShape)
                         .background(Color(0xFFE0E0E0))
-                )
+                ){
+                    Image(
+                        modifier = Modifier
+                            .width(148.dp)
+                            .height(123.dp)
+                            .padding(bottom = 7.dp)
+                            .clickable { checkCameraPermissonAndOpen() }
+                            .clip(RoundedCornerShape(60.dp)),
+                        painter = if (selectedImageUri != null) {
+                            rememberAsyncImagePainter(selectedImageUri)
+                        } else {
+                            painterResource(id = R.drawable.group_1)
+                        },
+                        contentDescription = "Фото пациента",
+                        contentScale = ContentScale.Crop
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -109,6 +207,15 @@ fun ProfileScreen() {
                     style = RalewayTypography.bodyRegular20
                 )
             }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            BarcodeCard(
+                onClick = {
+                    // TODO: действие по нажатию на штрих‑код
+                    // например, открыть полный экран с кодом
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Поля профиля
             Column(
@@ -169,6 +276,42 @@ fun ProfileScreen() {
         }
     }
 }
+@Composable
+fun BarcodeCard(
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(65.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF7F7FF)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+
+
+            // Сам штрих‑код
+            Image(
+                painter = painterResource(id = R.drawable._ae2187166e1c92b6c12b24707d7e7e7_1), // картинка со штрих‑кодом
+                contentDescription = "Штрих‑код",
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f),
+                contentScale = ContentScale.FillHeight
+            )
+        }
+    }
+}
 
 @Composable
 private fun InputField(
@@ -190,9 +333,12 @@ private fun InputField(
         // Поле (non-editable)
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp),
-            color = Color(0xFFF5F5F5),
-            border = CardDefaults.outlinedCardBorder()
+            shape = RoundedCornerShape(14.dp),
+            color = BackgroundColor,
+            border = BorderStroke(
+                width = 1.dp,
+                color = Color.White
+            )
         ) {
             Box(
                 modifier = Modifier
@@ -236,10 +382,16 @@ private fun EditableField(
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             textStyle = RalewayTypography.bodyRegular16,
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF6200EE),
-                unfocusedBorderColor = Color(0xFFE0E0E0)
+                // Прозрачные границы
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
+                disabledBorderColor = Color.Transparent,
+                // Цвета фона
+                focusedContainerColor = BackgroundColor,
+                unfocusedContainerColor = BackgroundColor,
+                disabledContainerColor = BackgroundColor
             )
         )
     }
@@ -248,5 +400,5 @@ private fun EditableField(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ProfileScreenPreview() {
-    ProfileScreen()
+    com.example.practica_tomin.data.screens.ProfileScreenPreview()
 }

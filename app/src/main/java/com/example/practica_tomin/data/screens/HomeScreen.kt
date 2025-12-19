@@ -1,7 +1,6 @@
 // screens/HomeScreen.kt
-package com.example.practica_tomin.data.screens
+package com.example.shoeshop.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,16 +10,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-
+import androidx.compose.foundation.Image
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -32,11 +26,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.practica_tomin.data.model.Category
-import com.example.practica_tomin.data.model.Product
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.practica_tomin.R
 import com.example.practica_tomin.data.components.ProductCard
+import com.example.practica_tomin.data.model.Category
+import com.example.practica_tomin.data.model.Product
+import com.example.practica_tomin.data.screens.ProfileScreen
+import com.example.practica_tomin.ui.theme.AccentColor
 import com.example.practica_tomin.ui.theme.RalewayTypography
+import com.example.practica_tomin.ui.theme.TextColor
+
+import com.example.shoeshop.ui.viewmodel.HomeViewModel
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,58 +47,14 @@ fun HomeScreen(
     onProductClick: (Product) -> Unit,
     onCartClick: () -> Unit,
     onSearchClick: () -> Unit,
-    onSettingsClick: () -> Unit = {}
+    onSettingsClick: () -> Unit = {},
+    onCategoryClick: (String) -> Unit = {} // Новый параметр для навигации на категорию
 ) {
-    var selected by rememberSaveable { mutableIntStateOf(0) }
+    var selected by remember { mutableIntStateOf(0) }
 
-    // Состояние для выбранной категории
-    var selectedCategory by remember { mutableStateOf("Все") }
-
-    // Данные категорий
-    val categories = listOf(
-        Category("Все", isSelected = true),
-        Category("Outdoor", isSelected = false),
-        Category("Tennis", isSelected = false)
-    )
-
-    val popularProducts = listOf(
-        Product(
-            id = "1",
-            name = "Nike Air Max",
-            price = "P752.00",
-            originalPrice = "P850.00",
-            category = "BEST SELLER",
-            imageUrl = "", // Оставьте пустым или добавьте URL
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3 // Добавьте ресурс картинки
-        ),
-        Product(
-            id = "2",
-            name = "Nike Air Force 1",
-            price = "P820.00",
-            originalPrice = "P900.00",
-            category = "BEST SELLER",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        ),
-        Product(
-            id = "3",
-            name = "Adidas Ultraboost",
-            price = "P680.00",
-            originalPrice = "P750.00",
-            category = "NEW",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        ),
-        Product(
-            id = "4",
-            name = "Puma RS-X",
-            price = "P520.00",
-            originalPrice = "P600.00",
-            category = "TRENDING",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        )
-    )
+    // Используем ViewModel для управления состоянием
+    val viewModel: HomeViewModel = viewModel()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
@@ -106,7 +64,7 @@ fun HomeScreen(
                     .fillMaxWidth()
             ) {
                 // Фоновая картинка
-                Image(
+                androidx.compose.foundation.Image(
                     painter = painterResource(id = R.drawable.vector_1789),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
@@ -143,7 +101,7 @@ fun HomeScreen(
                         }
                     }
 
-                    // Центральная кнопка корзины (выше других кнопок)
+                    // Центральная кнопка корзины
                     Box(
                         modifier = Modifier
                             .offset(y = (-20).dp)
@@ -188,6 +146,35 @@ fun HomeScreen(
             }
         }
     ) { paddingValues ->
+        // Показываем индикатор загрузки
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
+
+        // Показываем ошибку если есть
+        uiState.errorMessage?.let { errorMessage ->
+            AlertDialog(
+                onDismissRequest = { viewModel.clearError() },
+                title = { Text("Ошибка загрузки") },
+                text = { Text(errorMessage) },
+                confirmButton = {
+                    TextButton(
+                        onClick = { viewModel.clearError() }
+                    ) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -210,7 +197,7 @@ fun HomeScreen(
                         textAlign = TextAlign.Center
                     )
 
-                    // Строка с полем поиска и иконкой настроек
+                    // Строка с поиском и настройками
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -254,12 +241,12 @@ fun HomeScreen(
 
                         Spacer(modifier = Modifier.width(12.dp))
 
-                        // Иконка настроек с круглым голубым фоном
+                        // Иконка настроек
                         Box(
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
+                                .background(AccentColor)
                                 .clickable { onSettingsClick() },
                             contentAlignment = Alignment.Center
                         ) {
@@ -275,9 +262,7 @@ fun HomeScreen(
             }
 
             // Основной контент
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 when (selected) {
                     0 -> {
                         LazyColumn(
@@ -288,10 +273,11 @@ fun HomeScreen(
                             // Секция: Категории
                             item {
                                 CategorySection(
-                                    categories = categories,
-                                    selectedCategory = selectedCategory,
-                                    onCategorySelected = { category ->
-                                        selectedCategory = category
+                                    categories = uiState.categories,
+                                    selectedCategory = uiState.selectedCategory,
+                                    onCategorySelected = { categoryName ->
+                                        viewModel.selectCategory(categoryName)
+                                        onCategoryClick(categoryName) // Навигация на экран категории
                                     }
                                 )
                             }
@@ -299,7 +285,7 @@ fun HomeScreen(
                             // Секция: Популярное
                             item {
                                 PopularSection(
-                                    products = popularProducts,
+                                    products = uiState.popularProducts,
                                     onProductClick = onProductClick,
                                     onFavoriteClick = { product ->
                                         // Обработка добавления в избранное
@@ -345,7 +331,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun CategorySection(
+fun CategorySection(
     categories: List<Category>,
     selectedCategory: String,
     onCategorySelected: (String) -> Unit
@@ -381,8 +367,8 @@ private fun CategoryChip(
         modifier = Modifier
             .clickable { onClick() }
             .clip(RoundedCornerShape(16.dp)),
-        color = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFFF5F5F5),
-        contentColor = if (isSelected) Color.White else Color.Black
+        color = if (isSelected) AccentColor else Color.White,
+        contentColor = if (isSelected) Color.White else TextColor
     ) {
         Text(
             text = category,
@@ -414,23 +400,38 @@ private fun PopularSection(
                 style = RalewayTypography.bodyRegular12,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.clickable {
-                    // Навигация на все популярные товары
+                    // Можно добавить навигацию на все популярные товары
                 }
             )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Список товаров
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(products) { product ->
-                ProductCard(
-                    product = product,
-                    onProductClick = { onProductClick(product) },
-                    onFavoriteClick = { onFavoriteClick(product) }
-                )
+        // Проверяем, есть ли товары
+        if (products.isEmpty()) {
+            Text(
+                text = "Нет товаров",
+                style = RalewayTypography.bodyRegular14,
+                color = Color.Gray,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp),
+                textAlign = TextAlign.Center
+            )
+        } else {
+            // Список товаров
+            LazyRow(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(products) { product ->
+                    ProductCard(
+                        product = product,
+                        onProductClick = { onProductClick(product) },
+                        onFavoriteClick = { onFavoriteClick(product) },
+                        modifier = Modifier
+                    )
+                }
             }
         }
     }
@@ -439,70 +440,47 @@ private fun PopularSection(
 @Composable
 private fun PromotionsSection() {
     Column {
-        Text(
-            text = stringResource(id = R.string.sales),
-            style = RalewayTypography.bodyMedium16,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+
+            ) {
+            Text(
+                text = stringResource(id = R.string.sales),
+                style = RalewayTypography.bodyMedium16,
+                modifier = Modifier.padding()
+            )
+            Text(
+                text = "Все",
+                style = RalewayTypography.bodyRegular12,
+                color = AccentColor,
+                modifier = Modifier.clickable {
+                    // Навигация на все популярные товары
+                }
+            )
+        }
+
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp),
-            shape = RoundedCornerShape(16.dp),
+                .height(120.dp)
+                .clickable {  },
+            shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF4CAF50)
-            )
+                containerColor = Color.White
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Левая часть с текстом
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Summer Sale",
-                        style = RalewayTypography.headingRegular32.copy(
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "15% OFF",
-                        style = RalewayTypography.headingRegular32.copy(
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
-                        )
-                    )
-                }
-
-                // Правая часть с кнопкой
-                TextButton(
-                    onClick = {
-                        // Навигация на акции
-                    },
-                    modifier = Modifier
-                        .background(Color.White, RoundedCornerShape(12.dp))
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = "Смотреть",
-                        style = RalewayTypography.bodyMedium16.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4CAF50)
-                        )
-                    )
-                }
-            }
+            Image(
+                painter = painterResource(
+                    R.drawable.frame_1000000849
+                ),
+                contentDescription = "Summer sale",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
         }
     }
 }
@@ -514,6 +492,7 @@ fun HomeScreenPreview() {
         onProductClick = {},
         onCartClick = {},
         onSearchClick = {},
-        onSettingsClick = {}
+        onSettingsClick = {},
+        onCategoryClick = {}
     )
 }

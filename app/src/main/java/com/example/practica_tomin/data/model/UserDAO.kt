@@ -5,6 +5,10 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.practica_tomin.R
+
+import com.example.up_piatnitskii.data.Model.CategoryEntity
+import com.example.up_piatnitskii.data.Model.CategoryResponse
 
 @Dao
 interface UserDAO {
@@ -22,4 +26,5 @@ interface UserDAO {
 
     @Query("DELETE FROM users")
     suspend fun deleteAllUsers()
+
 }
