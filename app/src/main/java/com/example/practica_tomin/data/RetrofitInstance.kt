@@ -86,6 +86,6 @@ object RetrofitInstance {
 
     val productsService = retrofitRest.create(ProductsService::class.java)
     val categoriesService = retrofitRest.create(CategoriesService::class.java)
-    val favouriteService: FavouriteService = com.example.practica_tomin.data.RetrofitInstance.retrofitRest.create(FavouriteService::class.java)
+    val favouriteService: FavouriteService = retrofitRest.create(FavouriteService::class.java)
 
 }
