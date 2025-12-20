@@ -57,7 +57,7 @@ fun ProductCard(
                     androidx.compose.foundation.Image(
                         painter = painterResource(id = product.imageResId),
                         contentDescription = product.name,
-                        contentScale = ContentScale.Crop,
+                        contentScale = ContentScale.Fit,
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
@@ -141,7 +141,7 @@ fun ProductCardPreview() {
             displayCategory = "BEST SELLER",  // Используем displayCategory
             originalPrice = "P850.00",
             imageUrl = "",
-            imageResId = R.drawable.ic_launcher_foreground  // Добавьте реальное изображение
+            imageResId = R.drawable._4bc6394_6695_4134_992b_1d9972aeb639_ffa500  // Добавьте реальное изображение
         ),
         onProductClick = {},
         onFavoriteClick = {}
