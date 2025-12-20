@@ -61,6 +61,10 @@ class SignInViewModel (private val userDAO: UserDAO): ViewModel() {
                     } catch (e: Exception) {
                         Log.e("SignIn", "Ошибка при проверке/создании профиля: ${e.message}")
                     }
+                    val profileResponse = RetrofitInstance.userManagementService.getProfile("eq.$userId")
+                    val profile = profileResponse.body()?.firstOrNull()
+                    val profileId = profile?.id
+                    saveProfileId(context, profileId)
 
 
                     Log.v("SignIn", "Пользователь успешно авторизован: ${SignInResponse.email}")
